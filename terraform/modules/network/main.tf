@@ -102,37 +102,3 @@ resource "azurerm_network_interface_security_group_association" "my_terraform_as
   network_interface_id      = azurerm_network_interface.my_terraform_nic.id
   network_security_group_id = azurerm_network_security_group.my_terraform_nsg.id
 }
-
-# Create the virtual machine
-resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
-  name                  = "ReleaseVM"
-  computer_name         = "ReleaseVM"
-  resource_group_name   = data.azurerm_resource_group.current.name
-  location              = data.azurerm_resource_group.current.location
-  size                  = "Standard_B1s"
-  admin_username        = "intern"
-  network_interface_ids = [azurerm_network_interface.my_terraform_nic.id]
-  os_disk {
-    name                 = "Release_disk"
-    caching              = "ReadWrite"
-    storage_account_type = "StandardSSD_LRS"
-  }
-
-  admin_ssh_key {
-    username   = "intern"
-    public_key = data.azurerm_ssh_public_key.my_vm_public_key.public_key
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-
-  disable_password_authentication = true
-  tags = {
-    managed_by  = "terraform"
-    environment = "dev"
-  }
-}
